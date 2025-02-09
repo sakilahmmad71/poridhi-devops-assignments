@@ -1,0 +1,81 @@
+# Network Simulation Setup
+
+This project sets up a network simulation using Linux network namespaces, bridges, and routing. The setup includes two isolated networks connected via a router namespace.
+
+## Prerequisites
+
+Ensure you have `iproute2` installed, as it is required to manage network namespaces and bridges.
+
+```bash
+sudo apt install iproute2 -y
+```
+
+## Usage
+
+### Using the Bash Script
+
+A script `network_simulation.sh` is provided for setting up the network.
+
+#### Run the script
+
+```bash
+chmod +x network_simulation.sh
+sudo ./network_simulation.sh
+```
+
+#### Cleanup
+
+To remove all configurations:
+
+```bash
+sudo ./network_simulation.sh cleanup
+```
+
+### Using the Makefile
+
+A `Makefile` is included to automate setup and cleanup.
+
+#### Setup the network
+
+```bash
+sudo make setup
+```
+
+#### Test connectivity
+
+```bash
+sudo make test
+```
+
+#### Cleanup the network
+
+```bash
+sudo make cleanup
+```
+
+## Network Topology
+
+- **Namespaces:**
+  - `ns1` - Connected to `br0`
+  - `ns2` - Connected to `br1`
+  - `router-ns` - Connects `br0` and `br1`
+- **Bridges:**
+  - `br0` connects `ns1` and the router
+  - `br1` connects `ns2` and the router
+
+## IP Address Scheme
+
+- `ns1`: `192.168.1.2/24`
+- `ns2`: `192.168.2.2/24`
+- `router-ns`:
+  - `br0` side: `192.168.1.1/24`
+  - `br1` side: `192.168.2.1/24`
+
+## Notes
+
+- Running the script or Makefile requires `sudo` privileges.
+- IP forwarding is enabled in `router-ns` to facilitate communication between `ns1` and `ns2`.
+
+## License
+
+This project is released under the MIT License.
