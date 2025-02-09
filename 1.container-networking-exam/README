@@ -75,7 +75,3 @@ sudo make cleanup
 
 - Running the script or Makefile requires `sudo` privileges.
 - IP forwarding is enabled in `router-ns` to facilitate communication between `ns1` and `ns2`.
-
-## License
-
-This project is released under the MIT License.
