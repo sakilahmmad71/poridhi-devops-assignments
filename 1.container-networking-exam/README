@@ -1,6 +1,7 @@
 # Network Simulation Setup
 
 This project sets up a network simulation using Linux network namespaces, bridges, and routing. The setup includes two isolated networks connected via a router namespace.
+The network stack can be seen through https://excalidraw.com/#json=wL53YExhBXzrfFD596Fc7,Oy90N2phcutbGb0MyTqvPA
 
 ## Prerequisites
 
