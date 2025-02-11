@@ -51,7 +51,7 @@ sudo make test
 #### Cleanup the network
 
 ```bash
-sudo make cleanup
+sudo make clean
 ```
 
 ## Network Topology
