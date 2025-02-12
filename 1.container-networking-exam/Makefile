@@ -1,4 +1,4 @@
-.PHONY: run
+.PHONY: setup
 setup:
 	@echo "Running the program..."
 
