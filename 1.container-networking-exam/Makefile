@@ -60,12 +60,17 @@ setup:
 	ip netns exec ns2 ip route add default via 192.168.1.254 dev veth-ns2
 
 	@echo "Enable IP forwarding in router-ns"
+	sudo sysctl -w net.ipv4.ip_forward=1
 	ip netns exec router-ns sysctl -w net.ipv4.ip_forward=1
 
 	@echo "Set up NAT or forwarding rules"
 	ip netns exec router-ns iptables -t nat -A POSTROUTING -o veth-router2 -j MASQUERADE
 	ip netns exec router-ns iptables -A FORWARD -i veth-router1 -o veth-router2 -j ACCEPT
 	ip netns exec router-ns iptables -A FORWARD -i veth-router2 -o veth-router1 -j ACCEPT
+	sudo iptables --append FORWARD --in-interface br1 --jump ACCEPT
+	sudo iptables --append FORWARD --out-interface br1 --jump ACCEPT
+	sudo iptables --append FORWARD --in-interface br2 --jump ACCEPT
+	sudo iptables --append FORWARD --out-interface br2 --jump ACCEPT
 
 	@echo "Show IP addresses and routing tables"
 	ip netns exec ns1 ip addr show dev veth-ns1
