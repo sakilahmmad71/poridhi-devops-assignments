@@ -1,124 +1,99 @@
-# Color codes for output
-GREEN = \033[0;32m
-YELLOW = \033[1;33m
-RED = \033[0;31m
-NC = \033[0m
+.PHONY: run
+setup:
+	@echo "Running the program..."
 
-# Function to print status messages
-print_status = @echo -e "$(GREEN)[STATUS]$(NC) $$1"
+	@echo "Create Isolated network namespaces"
+	ip netns add ns1
+	ip netns add ns2
+	ip netns add router-ns
 
-# Function to print test results
-print_test = @echo -e "$(YELLOW)[TEST]$(NC) $$1"
+	@echo "Create bridge interfaces"
+	ip link add br1 type bridge
+	ip link add br2 type bridge
 
-# Function to print errors
-print_error = @echo -e "$(RED)[ERROR]$(NC) $$1"
+	@echo "Create veth cables for ns1 and ns2"
+	ip link add veth-ns1 type veth peer name veth-br1
+	ip link add veth-ns2 type veth peer name veth-br2
 
-# Default target
-.PHONY: all
-all: setup test
+	@echo "Create veth cables for router-ns"
+	ip link add veth-router1 type veth peer name veth-br1-router
+	ip link add veth-router2 type veth peer name veth-br2-router
 
-# Setup target
-.PHONY: setup
-setup: clean
-	$(call print_status, "Setting up network environment...")
-	$(call print_status, "Creating network namespaces...")
-	sudo ip netns add ns1
-	sudo ip netns add ns2
-	sudo ip netns add router-ns
-	$(call print_status, "Creating veth pairs...")
-	sudo ip link add veth1 type veth peer name veth1-router
-	sudo ip link add veth2 type veth peer name veth2-router
-	$(call print_status, "Configuring ns1...")
-	sudo ip link set veth1 netns ns1
-	sudo ip link set veth1-router netns router-ns
-	sudo ip netns exec ns1 ip link set lo up
-	sudo ip netns exec ns1 ip link set veth1 up
-	sudo ip netns exec ns1 ip addr add 192.168.1.2/24 dev veth1
-	$(call print_status, "Configuring ns2...")
-	sudo ip link set veth2 netns ns2
-	sudo ip link set veth2-router netns router-ns
-	sudo ip netns exec ns2 ip link set lo up
-	sudo ip netns exec ns2 ip link set veth2 up
-	sudo ip netns exec ns2 ip addr add 192.168.2.2/24 dev veth2
-	$(call print_status, "Configuring router...")
-	sudo ip netns exec router-ns ip link set lo up
-	sudo ip netns exec router-ns ip link set veth1-router up
-	sudo ip netns exec router-ns ip link set veth2-router up
-	sudo ip netns exec router-ns ip addr add 192.168.1.1/24 dev veth1-router
-	sudo ip netns exec router-ns ip addr add 192.168.2.1/24 dev veth2-router
-	$(call print_status, "Enabling IP forwarding...")
-	sudo ip netns exec router-ns sysctl -w net.ipv4.ip_forward=1
-	$(call print_status, "Configuring routing...")
-	sudo ip netns exec ns1 ip route add default via 192.168.1.1
-	sudo ip netns exec ns2 ip route add default via 192.168.2.1
-	$(call print_status, "Configuring iptables...")
-	sudo ip netns exec router-ns iptables -F
-	sudo ip netns exec router-ns iptables -t nat -F
-	sudo ip netns exec router-ns iptables -P FORWARD ACCEPT
-	sudo ip netns exec router-ns iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o veth2-router -j MASQUERADE
-	sudo ip netns exec router-ns iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -o veth1-router -j MASQUERADE
+	@echo "Assign veth cables to network namespaces"
+	ip link set veth-ns1 netns ns1
+	ip link set veth-ns2 netns ns2
+	ip link set veth-router1 netns router-ns
+	ip link set veth-router2 netns router-ns
 
-# Test target
-.PHONY: test
+	@echo "Attach veth cables to bridges"
+	ip link set veth-br1 master br1
+	ip link set veth-br2 master br2
+	ip link set veth-br1-router master br1
+	ip link set veth-br2-router master br2
+
+	@echo "Set veth cables up in namespaces"
+	ip netns exec ns1 ip link set veth-ns1 up
+	ip netns exec ns2 ip link set veth-ns2 up
+	ip netns exec router-ns ip link set veth-router1 up
+	ip netns exec router-ns ip link set veth-router2 up
+
+	@echo "Set bridge interfaces up"
+	ip link set veth-br1 up
+	ip link set veth-br2 up
+	ip link set veth-br1-router up
+	ip link set veth-br2-router up
+	ip link set br1 up
+	ip link set br2 up
+
+	@echo "Assign IP addresses to bridge interfaces"
+	ip addr add 192.168.0.1/24 dev br1
+	ip addr add 192.168.1.1/24 dev br2
+
+	@echo "Assign IP addresses to network namespaces"
+	ip netns exec ns1 ip addr add 192.168.0.2/24 dev veth-ns1
+	ip netns exec ns2 ip addr add 192.168.1.2/24 dev veth-ns2
+	ip netns exec router-ns ip addr add 192.168.0.254/24 dev veth-router1
+	ip netns exec router-ns ip addr add 192.168.1.254/24 dev veth-router2
+
+	@echo "Set default route in ns1 and ns2"
+	ip netns exec ns1 ip route add default via 192.168.0.254 dev veth-ns1
+	ip netns exec ns2 ip route add default via 192.168.1.254 dev veth-ns2
+
+	@echo "Enable IP forwarding in router-ns"
+	ip netns exec router-ns sysctl -w net.ipv4.ip_forward=1
+
+	@echo "Set up NAT or forwarding rules"
+	ip netns exec router-ns iptables -t nat -A POSTROUTING -o veth-router2 -j MASQUERADE
+	ip netns exec router-ns iptables -A FORWARD -i veth-router1 -o veth-router2 -j ACCEPT
+	ip netns exec router-ns iptables -A FORWARD -i veth-router2 -o veth-router1 -j ACCEPT
+
+	@echo "Show IP addresses and routing tables"
+	ip netns exec ns1 ip addr show dev veth-ns1
+	ip netns exec ns2 ip addr show dev veth-ns2
+	ip netns exec router-ns ip addr show
+	ip netns exec router-ns ip route show
+
+	@echo "Show bridge interfaces"
+	ip addr show dev br1
+	ip addr show dev br2
+
+.PHONY: run
 test:
-	$(call print_status, "Running network tests...")
-	$(call show_network_config, "ns1")
-	$(call show_network_config, "ns2")
-	$(call show_network_config, "router-ns")
-	$(call test_connectivity, "ns1", "192.168.1.1", "ns1 -> router (direct)")
-	$(call test_connectivity, "ns2", "192.168.2.1", "ns2 -> router (direct)")
-	$(call test_connectivity, "ns1", "192.168.2.2", "ns1 -> ns2 (cross-network)")
-	$(call test_connectivity, "ns2", "192.168.1.2", "ns2 -> ns1 (cross-network)")
-	$(call test_connectivity, "router-ns", "192.168.1.2", "router -> ns1")
-	$(call test_connectivity, "router-ns", "192.168.2.2", "router -> ns2")
-	$(call print_status, "Displaying ARP tables...")
-	@echo -e "\nNS1 ARP table:"
-	sudo ip netns exec ns1 ip neigh show
-	@echo -e "\nNS2 ARP table:"
-	sudo ip netns exec ns2 ip neigh show
-	@echo -e "\nRouter ARP table:"
-	sudo ip netns exec router-ns ip neigh show
+	@echo "Testing the program..."
+	@echo "Ping from ns1 to ns2"
+	ip netns exec ns1 ping -c 4 192.168.1.2 
+	@echo "Ping from ns2 to ns1"
+	ip netns exec ns2 ping -c 4 192.168.0.2
+	@echo "Ping from ns1 to router-ns"
+	ip netns exec ns1 ping -c 4 192.168.0.254
+	@echo "Ping from ns2 to router-ns"
+	ip netns exec ns2 ping -c 4 192.168.1.254
 
-# Clean target
-.PHONY: clean
+.PHONY: run
 clean:
-	$(call print_status, "Cleaning up network configuration...")
-	sudo ip netns delete ns1 2>/dev/null || true
-	sudo ip netns delete ns2 2>/dev/null || true
-	sudo ip netns delete router-ns 2>/dev/null || true
-	sudo ip link delete br0 2>/dev/null || true
-	sudo ip link delete br1 2>/dev/null || true
-
-# Help target
-.PHONY: help
-help:
-	@echo "Usage:"
-	@echo "  make [target]"
-	@echo ""
-	@echo "Targets:"
-	@echo "  all     - Setup the network and run tests"
-	@echo "  setup   - Setup the network"
-	@echo "  test    - Run network tests"
-	@echo "  clean   - Clean up the network configuration"
-	@echo "  help    - Display this help message"
-
-# Function to show network configuration
-define show_network_config
-	@echo -e "\n$(YELLOW)Network configuration for $$1:$(NC)"
-	@echo "Interfaces:"
-	sudo ip netns exec $$1 ip addr show
-	@echo "Routes:"
-	sudo ip netns exec $$1 ip route show
-endef
-
-# Function to test connectivity between namespaces
-define test_connectivity
-	$(call print_test, "Testing connectivity: $$3")
-	if sudo ip netns exec $$1 ping -c 2 -W 1 $$2 > /dev/null 2>&1; then \
-		echo -e "$(GREEN)✓ Success: $$1 can reach $$2$(NC)"; \
-		return 0; \
-	else \
-		echo -e "$(RED)✗ Failed: $$1 cannot reach $$2$(NC)"; \
-		return 1; \
-	fi
-endef
+	@echo "Cleaning up network namespaces and interfaces..."
+	@ip netns del ns1
+	@ip netns del ns2
+	@ip netns del router-ns
+	@ip link del br1
+	@ip link del br2
