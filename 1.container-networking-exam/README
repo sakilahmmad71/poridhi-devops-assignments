@@ -21,16 +21,23 @@ A script `network_simulation.sh` is provided for setting up the network.
 
 ```bash
 chmod +x network_simulation.sh
-sudo ./network_simulation.sh
+sudo ./network_simulation.sh setup
+```
+
+#### Test
+
+To test all configurations:
+
+```bash
+sudo ./network_simulation.sh test
 ```
 
 #### Cleanup
 
 To remove all configurations:
 
-```bash
-sudo ./network_simulation.sh cleanup
-```
+````bash
+sudo ./network_simulation.sh clean
 
 ### Using the Makefile
 
@@ -40,7 +47,7 @@ A `Makefile` is included to automate setup and cleanup.
 
 ```bash
 sudo make setup
-```
+````
 
 #### Test connectivity
 
