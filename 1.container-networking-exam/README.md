@@ -64,20 +64,20 @@ sudo make clean
 ## Network Topology
 
 - **Namespaces:**
-  - `ns1` - Connected to `br0`
-  - `ns2` - Connected to `br1`
-  - `router-ns` - Connects `br0` and `br1`
+  - `ns1` - Connected to `br1`
+  - `ns2` - Connected to `br2`
+  - `router-ns` - Connects `br1` and `br2`
 - **Bridges:**
-  - `br0` connects `ns1` and the router
-  - `br1` connects `ns2` and the router
+  - `br1` connects `ns1` and the router
+  - `br2` connects `ns2` and the router
 
 ## IP Address Scheme
 
 - `ns1`: `192.168.1.2/24`
 - `ns2`: `192.168.2.2/24`
 - `router-ns`:
-  - `br0` side: `192.168.1.1/24`
-  - `br1` side: `192.168.2.1/24`
+  - `br1` side: `192.168.1.1/24`
+  - `br2` side: `192.168.2.1/24`
 
 ## Notes
 
