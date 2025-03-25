@@ -1,0 +1,6 @@
+{"method":"GET","url":"/api/healthz","status":200,"responseTime":"2.458ms","timestamp":"2025-03-25T15:40:23.201Z","userAgent":"Thunder Client (https://www.thunderclient.com)"}
+
+{"method":"GET","url":"/api/healthz","status":200,"responseTime":"0.282ms","timestamp":"2025-03-25T15:40:23.723Z","userAgent":"Thunder Client (https://www.thunderclient.com)"}
+
+{"method":"GET","url":"/api/healthz","status":200,"responseTime":"0.372ms","timestamp":"2025-03-25T15:40:24.171Z","userAgent":"Thunder Client (https://www.thunderclient.com)"}
+
