@@ -16,6 +16,7 @@ while [[ $retry_count -lt $MAX_RETRIES ]]; do
 		echo "Successfully connected to MySQL at $DB_HOST:$DB_PORT"
     exit 0
 	fi
+	
 	echo "Attempt $((retry_count + 1))/$MAX_RETRIES: Cannot connect to MySQL at $DB_HOST:$DB_PORT. Retrying in $RETRY_INTERVAL seconds..."
 	sleep $RETRY_INTERVAL
 	retry_count=$((retry_count + 1))

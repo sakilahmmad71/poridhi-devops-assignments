@@ -2,6 +2,11 @@
 
 exec > >(tee /var/log/mysql-setup.log) 2>&1
 
+if command -v mysql >/dev/null 2>&1; then
+    echo "MySQL is already installed. Skipping installation."
+		exit 0
+fi
+
 apt update
 apt upgrade -y
 

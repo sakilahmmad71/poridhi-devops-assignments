@@ -4,3 +4,27 @@
 
 {"method":"GET","url":"/api/healthz","status":200,"responseTime":"0.372ms","timestamp":"2025-03-25T15:40:24.171Z","userAgent":"Thunder Client (https://www.thunderclient.com)"}
 
+{"method":"GET","url":"/api/healthz","status":200,"responseTime":"2.311ms","timestamp":"2025-04-07T05:57:03.415Z","userAgent":"curl/8.7.1"}
+
+{"method":"GET","url":"/api/status","status":200,"responseTime":"0.834ms","timestamp":"2025-04-07T05:57:13.336Z","userAgent":"curl/8.7.1"}
+
+{"method":"GET","url":"/api/status","status":200,"responseTime":"0.309ms","timestamp":"2025-04-07T05:58:22.089Z","userAgent":"curl/8.7.1"}
+
+{"method":"GET","url":"/api/status","status":200,"responseTime":"0.369ms","timestamp":"2025-04-07T05:58:42.330Z","userAgent":"curl/8.7.1"}
+
+{"method":"GET","url":"/api/status","status":200,"responseTime":"0.323ms","timestamp":"2025-04-07T05:58:47.228Z","userAgent":"curl/8.7.1"}
+
+{"method":"GET","url":"/api/status","status":200,"responseTime":"0.166ms","timestamp":"2025-04-07T05:59:14.290Z","userAgent":"curl/8.7.1"}
+
+{"method":"GET","url":"/api/status","status":200,"responseTime":"0.206ms","timestamp":"2025-04-07T05:59:22.545Z","userAgent":"curl/8.7.1"}
+
+{"method":"GET","url":"/api/v1/health","status":404,"responseTime":"1.838ms","timestamp":"2025-04-07T15:32:58.912Z","userAgent":"curl/8.7.1"}
+
+{"method":"GET","url":"/api/v1/healthz","status":404,"responseTime":"1.153ms","timestamp":"2025-04-07T15:33:02.875Z","userAgent":"curl/8.7.1"}
+
+{"method":"GET","url":"/api/v1/status","status":404,"responseTime":"0.490ms","timestamp":"2025-04-07T15:33:09.626Z","userAgent":"curl/8.7.1"}
+
+{"method":"GET","url":"/api/status","status":200,"responseTime":"2.451ms","timestamp":"2025-04-07T15:33:20.127Z","userAgent":"curl/8.7.1"}
+
+{"method":"GET","url":"/api/healthz","status":200,"responseTime":"0.640ms","timestamp":"2025-04-07T15:33:25.654Z","userAgent":"curl/8.7.1"}
+

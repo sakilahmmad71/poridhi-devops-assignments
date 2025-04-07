@@ -2,6 +2,11 @@
 
 exec > >(tee /var/log/nodejs-setup.log) 2>&1
 
+if command -v node >/dev/null 2>&1; then
+		echo "Node.js is already installed. Skipping installation."
+		exit 0
+fi
+
 apt update
 apt upgrade -y
 
